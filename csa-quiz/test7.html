@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全意识挑战 - 第7题</title>
+    <style>
+        /* --- 采用test1页面的设计风格 --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        /* 新增：进度显示样式 */
+        .progress-bar {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header {
+            color: #d9534f;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .sub-header {
+            color: #5f6368;
+            font-size: 15px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e8eaed;
+            padding-bottom: 15px;
+        }
+
+        .email-client-mock {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #fffbe6;
+            text-align: left;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+
+        .email-client-mock p { margin: 10px 0; }
+        .email-client-mock hr { border: 0; border-top: 1px solid #ddd; }
+
+        /* 模拟链接样式，此场景下为合规链接 */
+        .safe-link {
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .safe-link:hover {
+            position: relative;
+        }
+
+        .safe-link:hover:after {
+            content: "跳转至: https://id.zju.edu.cn/cas/login?service=https://yiban.zju.edu.cn";
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            font-size: 12px;
+            background-color: #333;
+            color: #fff;
+            padding: 2px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+            font-family: monospace;
+            font-weight: normal;
+        }
+
+        .action-area {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        /* 场景一：钓鱼按钮（蓝色）*/
+        .btn-phishing {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-phishing:hover {
+            background-color: #0056b3;
+        }
+
+        /* 场景一：安全按钮（灰色）*/
+        .btn-safe {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-safe:hover {
+            background-color: #545b62;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            display: none;
+            border-radius: 4px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .res-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .res-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .analysis-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .analysis-item {
+            margin-bottom: 8px;
+            padding-left: 18px;
+            position: relative;
+        }
+
+        .analysis-item:before {
+            content: "◆";
+            position: absolute;
+            left: 0;
+            font-size: 12px;
+            top: 2px;
+        }
+
+        /* --- 新增：居中显示“下一条”按钮 --- */
+        .btn-next {
+            background-color: #28a745;
+            color: white;
+            margin-top: 15px;
+            display: none; /* 初始隐藏 */
+            width: 100%;
+        }
+        .btn-next:hover {
+            background-color: #218838;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="scoreBoard" class="progress-bar">题目：1 / 10</div>
+
+        <div class="header">🛡️ 真实校园服务场景：信息备案</div>
+        <div class="sub-header">场景：你收到学工部关于紧急医疗信息备案的官方通知</div>
+
+        <div class="email-client-mock">
+            <div class="email-meta">
+                <p><strong>发件人:</strong> 浙江大学学生工作部 &lt;studentaffairs@zju.edu.cn&gt;</p>
+                <p><strong>主题:</strong> 【重要通知】关于学生紧急医疗与联系信息备案</p>
+            </div>
+
+            <div class="email-body">
+                <p>亲爱的同学：</p>
+                <p>为保障学生在校期间的生命安全与健康，学校启动紧急医疗与联系信息备案工作。采集您的既往病史、药物过敏史等，仅用于突发紧急情况下的快速救助。</p>
+                <p>请您在截止日期前，通过以下方式登录官方平台进行填写：</p>
+                <p style="text-align: center; margin: 25px 0;">
+                    <span class="safe-link">[点击此处安全登录学工系统进行备案]</span>
+                </p>
+                <p>请注意：所有信息将受到严格保护，仅在紧急情况下由校医院和保卫处查阅。如有疑问，请拨打学工部办公室电话 <span style="font-weight: bold; color: #007bff;">(8820XXXX)</span> 核实。</p>
+                <p>浙江大学学生工作部</p>
+            </div>
+        </div>
+
+        <div class="action-area">
+            <button class="btn btn-phishing" onclick="checkAnswer('ignore')">是钓鱼</button>
+            <button class="btn btn-safe" onclick="checkAnswer('link')">安全</button>
+        </div>
+
+        <div id="resultArea" class="result-box"></div>
+
+        <!-- 新增：下一题按钮 -->
+        <button id="nextBtn" class="btn btn-next" onclick="goNext()">下一条</button>
+    </div>
+
+    <script>
+        // ==========================================
+        // === 本页配置区域 ===
+        const currentQNum = 7;         // 当前题号
+        const nextPageName = "test8.html"; // 下一题文件名
+        const isPhishingAnswer = false; // 正确答案。false:此内容是安全的
+        const analysis = "解析：这个通知是学校官方的，提供了清晰的用途，且提供了线下核实渠道。";
+        // ==========================================
+
+        // 显示当前题目进度
+        function updateProgress() {
+            const total = parseInt(localStorage.getItem('fish_total') || 0);
+            document.getElementById('scoreBoard').innerText = `题目：${currentQNum}  / 10`;
+        }
+
+        function checkAnswer(choice) {
+            const resultArea = document.getElementById('resultArea');
+            resultArea.style.display = 'block';
+            
+            let htmlContent = '';                
+
+            // 在真实场景中，选择“安全登录”是正确的操作（尽管核实也是好习惯）
+            let isCorrect = false;
+
+            if (choice === 'link') {
+                resultArea.className = 'result-box res-success';
+                htmlContent = `<span class="analysis-title">✅ 正确操作！这是一个合规的安全通知。</span>`;
+                isCorrect = true;
+            } else {
+                resultArea.className = 'result-box res-danger';
+                htmlContent = `<span class="analysis-title">⚠️ 警示：这个通知是安全的，忽略可能会影响紧急救助备案。</span>`;
+            }
+
+            // 针对真实邮件的特征分析
+            htmlContent += `
+                <hr style="border:0; border-top:1px solid rgba(0,0,0,0.1); margin:15px 0;">
+                <strong>💡 合规邮件特征分析：</strong><br><br>
+                <div class="analysis-item" style="color:#1e8e3e; font-weight:bold;">发件人使用官方域名：<span style="font-family:monospace; background:#d4edda; padding:2px 4px; color:#155724;">@zju.edu.cn</span>，这是学校官方通知的铁证。</div>
+                <div class="analysis-item">目的清晰，不涉及金钱：通知明确说明采集信息仅用于“紧急救助”，不涉及任何费用、充值、学分或评奖。</div>
+                <div class="analysis-item">提供了线下核实渠道：邮件中提供了学工部办公室电话，而非一个陌生手机号。用户可以轻松致电校医院或学工部核实。</div>
+                <div class="analysis-item">链接指向统一认证系统：鼠标悬停（本演练已模拟）显示链接指向 <span style="font-family:monospace; background:#eee; padding:2px 4px;">id.zju.edu.cn</span> 等校内安全登录门户，而非陌生的外部域名。</div>
+            `;
+
+            resultArea.innerHTML = htmlContent;
+
+            // 更新分数和总题数
+            let score = parseInt(localStorage.getItem('fish_score') || 0);
+            let total = parseInt(localStorage.getItem('fish_total') || 0);
+
+            // 如果用户答对了，增加分数
+            if (isCorrect) {
+                score++;
+                localStorage.setItem('fish_score', score.toString());
+            }
+
+            // 更新总题数
+            total++;
+            localStorage.setItem('fish_total', total.toString());
+
+            // 显示“下一条”按钮
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function goNext() {
+            const total = parseInt(localStorage.getItem('fish_total'));
+            // 如果已做满10道，跳结果页，未满跳 test8
+            if (total >= 10) {
+                window.location.href = 'result.html';
+            } else {
+                window.location.href = nextPageName;
+            }
+        }
+
+        // 初始化
+        updateProgress();
+    </script>
+</body>
+</html>

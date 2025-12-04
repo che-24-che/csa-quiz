@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全意识挑战 - 第八题</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .header {
+            color: #d9534f;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .email-content {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #fffbe6;
+            text-align: left;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        .email-content p { margin: 10px 0; }
+        .email-content hr { border: 0; border-top: 1px solid #ddd; }
+
+        .btn-area {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            flex: 1;
+        }
+
+        .btn-phishing {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-phishing:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-safe {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-safe:hover {
+            background-color: #545b62;
+        }
+
+        .progress-bar {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        /* --- 新增：分析报告展示样式 --- */
+        .alert-box {
+            margin-top: 20px;
+            padding: 15px;
+            display: none;
+            border-radius: 4px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .failure {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .btn-next {
+            background-color: #28a745;
+            color: white;
+            width: 100%;
+            margin-top: 15px;
+            display: none; /* 初始隐藏 */
+        }
+        .btn-next:hover {
+            background-color: #218838;
+        }
+        .btn:disabled {                
+            opacity: 0.6;                
+            cursor: not-allowed;                
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="scoreBoard" class="progress-bar">题目：1/ 10</div>
+
+        <div class="header">⚠️ 网络安全讲座报名</div>
+        <p>请仔细阅读以下场景，判断其是否为钓鱼攻击：</p>
+
+        <div class="email-content">
+            <p><strong>发件人:</strong>浙江大学学生网络空间安全协会 &lt;security@zju.edu.cn&gt;</p>
+            <p><strong>主题:</strong> 【紧急通知】网络安全讲座报名</p>
+            <hr>
+            <p>各位同学：</p>
+            <p>下周五下午两点在蒙明伟楼225会举行网络安全讲座，参加可获得思想政治活动记实分，现开放报名通道，名额有限，先到先得。</p>
+            <p>请点击下方链接进行报名：</p>
+            <p style="color: blue; text-decoration: underline; cursor: pointer;">[立即报名]</p>
+        </div>
+
+        <div class="btn-area">
+            <button id="btnPhish" class="btn btn-phishing" onclick="makeChoice(true)">是钓鱼</button>
+            <button id="btnSafe" class="btn btn-safe" onclick="makeChoice(false)">安全</button>
+        </div>
+
+        <div id="resultHint" class="alert-box"></div>
+
+        <button id="nextBtn" class="btn btn-next" onclick="goNext()">下一条</button>
+    </div>
+
+    <script>
+        // ==========================================
+        // === 本页配置区域 ===
+        const currentQNum = 8;         // 当前题号
+        const nextPageName = "test9.html"; // 下一题文件名
+        const isPhishingAnswer = true; // 正确答案。true:此内容是钓鱼
+        const analysis = "解析：发件人域名中包含伪造的 <span style='font-family:monospace;'>security@zju.edu.cn</span>，官方应为 <span style='font-family:monospace;'>csa.zju.edu.cn</span>。此外，提供的链接并非浙江大学官方网站报名页面，而是钓鱼网站的伪造链接。";
+        // ==========================================
+
+        // 如果是第一题，初始化统计数据
+        if (currentQNum === 1) {
+            localStorage.setItem('fish_score', '0');
+            localStorage.setItem('fish_total', '0');
+        }
+
+        // 显示当前题目进度
+        function updateProgress() {
+            const total = parseInt(localStorage.getItem('fish_total') || 0);
+            document.getElementById('scoreBoard').innerText = `题目：${currentQNum}  / 10`;
+        }
+
+        function makeChoice(userChoice) {
+            // 禁用按钮
+            document.getElementById('btnPhish').disabled = true;
+            document.getElementById('btnSafe').disabled = true;                
+                
+            const resultHint = document.getElementById('resultHint');                
+            const nextBtn = document.getElementById('nextBtn');                
+            
+            const isCorrect = (userChoice === isPhishingAnswer);
+
+            // 更新localStorage中的分数和总次数
+            let score = parseInt(localStorage.getItem('fish_score') || 0);
+            let total = parseInt(localStorage.getItem('fish_total') || 0);
+            
+            if (isCorrect) {
+                score++;
+                localStorage.setItem('fish_score', score.toString());
+                resultHint.className = "alert-box success";
+                resultHint.innerHTML = "<strong>✅ 正确！</strong><br>" + analysis;
+            } else {
+                resultHint.className = "alert-box failure";
+                resultHint.innerHTML = "<strong>❌ 错误。</strong><br>" + analysis;
+            }
+            
+            total++;
+            localStorage.setItem('fish_total', total.toString());
+
+            // 显示反馈和“下一条”
+            resultHint.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function goNext() {
+            const total = parseInt(localStorage.getItem('fish_total'));
+            // 如果已做满10道，跳结果页，未满跳 test9
+            if (total >= 10) {
+                window.location.href = 'result.html';
+            } else {
+                window.location.href = nextPageName;
+            }
+        }
+
+        // 初始化
+        updateProgress();
+    </script>
+</body>
+</html>
