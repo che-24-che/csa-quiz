@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全意识挑战 - 结果</title>
+    <style>
+        /* 页面基础样式 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .header {
+            color: #d9534f;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .result-message {
+            font-size: 18px;
+            color: #28a745;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .note {
+            font-size: 16px;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">安全意识挑战 - 结果</div>
+
+        <!-- 显示答题情况 -->
+        <div class="result-message">
+            <p id="scoreResult"></p>
+        </div>
+
+        <!-- 提示信息 -->
+        <div class="note">
+            <p>加强防钓鱼意识，保护好您的隐私安全！</p>
+        </div>
+    </div>
+
+    <script>
+        // 获取保存在 localStorage 中的分数和答题总数
+        const score = parseInt(localStorage.getItem('fish_score') || 0);
+        const total = parseInt(localStorage.getItem('fish_total') || 0);
+
+        // 显示答题结果
+        document.getElementById('scoreResult').innerText = `您答对了 ${score} / 10 题！`;
+    </script>
+
+</body>
+</html>
