@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全意识挑战 - 第5题</title>
+    <style>
+        /* --- 统一样式，保持与答题系统一致 --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header {
+            color: #d9534f;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        /* 保持您喜爱的黄色邮件卡片样式 */
+        .email-content {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #fffbe6;
+            text-align: left;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        .email-content p { margin: 10px 0; }
+        .email-content hr { border: 0; border-top: 1px solid #ddd; }
+        /* 统一链接样式，以防出现视觉不一致 */
+        .link-text {
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-area {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            flex: 1;
+        }
+        
+        .btn-phishing {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-phishing:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-safe {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-safe:hover {
+            background-color: #545b62;
+        }
+
+        /* 汉字为“下一条” */
+        .btn-next {
+            background-color: #28a745; 
+            color: white;
+            width: 100%;
+            margin-top: 15px;
+            display: none; /* 初始隐藏 */
+        }
+        .btn-next:hover {
+            background-color: #218838;
+        }
+        .btn:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+        }
+
+        .alert-box {
+            margin-top: 20px;
+            padding: 15px;
+            display: none;
+            border-radius: 4px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .failure {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 进度条在页面加载时会正确显示当前题号 -->
+        <div id="scoreBoard" class="progress-bar">题目：5/ 10</div>
+
+        <div class="header">🛡️ 课本费退还场景</div>
+        <p>请仔细阅读场景，判断是否为钓鱼攻击：</p>
+
+        <div class="email-content">
+            <p><strong>发件人:</strong> 浙江大学综合财务管理平台 &lt;arts-edu@cwcx.zju.edu.org&gt;</p>
+            <p><strong>主题:</strong> 【通知】2025学年秋冬学期剩余书费退还</p>
+            <hr>
+            <p>亲爱的同学：</p>
+            <p>2025学年秋冬学期即将结束，你交的500元课本费还有49.7元剩余。</p>
+            <p>请立即点击以下链接，登录浙江大学统一身份认证平台，进入财务系统：</p>
+            <p style="text-align: center;">
+                <span class="link-text">[点击此处进入财务系统平台]</span>
+            </p>
+        </div>
+
+
+        <div class="btn-area">
+            <button id="btnPhish" class="btn btn-phishing" onclick="makeChoice(true)">是钓鱼</button>
+            <button id="btnSafe" class="btn btn-safe" onclick="makeChoice(false)">安全</button>
+        </div>
+
+        <div id="resultHint" class="alert-box"></div>
+
+        <button id="nextBtn" class="btn btn-next" onclick="goNext()">下一条</button>
+    </div>
+
+    <script>
+        // ==========================================
+        // === 本页配置区域 ===
+        const currentQNum = 5;        
+        const nextPageName = "test6.html"; // 下一题文件名
+        const isPhishingAnswer = true; // 正确答案：此内容是钓鱼 (利用对金钱的敏感和假域名)
+        const analysis = "解析：这是典型的利用“金钱”和“急迫性”的钓鱼攻击。主要特征包括：1. 可疑发件人： 域名 <span style='font-family:monospace;'>cwcx.zju.edu.org</span> 并非学校官方 <span style='font-family:monospace;'>cwcx.zju.edu.cn</span> 域名。2. 虚假链接： 邮件要求您在非官方域名下重复登录统一认证，企图盗取密码。3. 利用贪婪：利用学生对金钱的敏感性，诱惑他们点击链接，最终可能要求输入银行卡号、身份证号甚至密码。";
+        // ==========================================
+
+
+        function updateProgress() {
+            const total = parseInt(localStorage.getItem('fish_total') || 0);
+            document.getElementById('scoreBoard').innerText = `题目：${currentQNum} / 10`;
+        }
+
+        function makeChoice(userChoice) {
+            document.getElementById('btnPhish').disabled = true;
+            document.getElementById('btnSafe').disabled = true;                
+            
+            const resultHint = document.getElementById('resultHint');                
+            const nextBtn = document.getElementById('nextBtn');                
+            
+            const isCorrect = (userChoice === isPhishingAnswer);
+
+            let score = parseInt(localStorage.getItem('fish_score') || 0);
+            let total = parseInt(localStorage.getItem('fish_total') || 0);
+            
+            if (isCorrect) {
+                score++;
+                localStorage.setItem('fish_score', score.toString());
+                resultHint.className = "alert-box success";
+                resultHint.innerHTML = "<strong>✅ 正确！</strong><br>" + analysis;
+            } else {
+                resultHint.className = "alert-box failure";
+                resultHint.innerHTML = "<strong>❌ 错误。</strong><br>" + analysis;
+            }
+            
+            total++;
+            localStorage.setItem('fish_total', total.toString());
+
+            resultHint.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function goNext() {
+            const total = parseInt(localStorage.getItem('fish_total'));
+            // 循环逻辑：满10次跳转结果页
+            if (total >= 10) {
+                window.location.href = 'result.html';
+            } else {
+                window.location.href = nextPageName; // 跳转到 test4.html
+            }
+        }
+        
+        updateProgress();
+    </script>
+</body>
+</html>

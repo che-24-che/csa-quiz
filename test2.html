@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全意识挑战 - 第2题</title>
+    <style>
+        /* --- 统一样式，保持与 test1 一致 --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header {
+            color: #d9534f;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        /* 保持黄色邮件卡片样式 */
+        .email-content {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #fffbe6;
+            text-align: left;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        .email-content p { margin: 10px 0; }
+        .email-content hr { border: 0; border-top: 1px solid #ddd; }
+
+        .btn-area {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            flex: 1;
+        }
+        
+        .btn-phishing {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-phishing:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-safe {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-safe:hover {
+            background-color: #545b62;
+        }
+
+        /* 汉字为“下一条” */
+        .btn-next {
+            background-color: #28a745; 
+            color: white;
+            width: 100%;
+            margin-top: 15px;
+            display: none; /* 初始隐藏 */
+        }
+        .btn-next:hover {
+            background-color: #218838;
+        }
+        .btn:disabled {                
+            opacity: 0.6;                
+            cursor: not-allowed;                
+        }
+
+        .alert-box {
+            margin-top: 20px;
+            padding: 15px;
+            display: none;
+            border-radius: 4px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .failure {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="scoreBoard" class="progress-bar">题目：2 / 10</div>
+
+        <div class="header">📋 公务邮件场景</div>
+        <p>请仔细阅读场景，判断是否为钓鱼攻击：</p>
+
+        <div class="email-content">
+            <p><strong>发件人:</strong> MEXT遴选办公室 &lt;5432451@.gmail.co&gt;</p>
+            <p><strong>主题:</strong> 关于申请加入Professor Recharl下MEXT课题组的通知</p>
+            <hr>
+            <p>同学您好：</p>
+            <p>关于您申报MEXT课题组一事，我方已初步接受。</p>
+            <p>但因只剩两个名额，您需要在48小时内完成资料补充，链接附下：</p>
+            <p style="color: blue; text-decoration: underline; cursor: pointer;">[资料补充]</p>
+            <p>MEXT项目遴选办公室</p>
+        </div>
+
+        <div class="btn-area">
+            <button id="btnPhish" class="btn btn-phishing" onclick="makeChoice(true)">是钓鱼</button>
+            <button id="btnSafe" class="btn btn-safe" onclick="makeChoice(false)">安全</button>
+        </div>
+
+        <div id="resultHint" class="alert-box"></div>
+
+        <button id="nextBtn" class="btn btn-next" onclick="goNext()">下一条</button>
+    </div>
+
+    <script>
+        // ==========================================
+        // === 本页配置区域 ===
+        const currentQNum = 2;         
+        const nextPageName = "test3.html"; // 下一题文件名
+        const isPhishingAnswer = true; // 正确答案。true:此内容是钓鱼
+        const analysis = "解析：发件人域名后缀为 <span style='font-family:monospace;'>.gmail.co</span>，并非正式邮件后缀 <span style='font-family:monospace; font-weight:bold; color:#d9534f;'>.gmail.com</span>。攻击者冒用官方项目组，并以“48小时”为压迫，骗取完整的个人信息。";
+        // ==========================================
+
+        function updateProgress() {
+            const total = parseInt(localStorage.getItem('fish_total') || 0);
+            document.getElementById('scoreBoard').innerText = `题目：${currentQNum}  / 10`;
+        }
+
+        function makeChoice(userChoice) {
+            document.getElementById('btnPhish').disabled = true;
+            document.getElementById('btnSafe').disabled = true;                
+            
+            const resultHint = document.getElementById('resultHint');                
+            const nextBtn = document.getElementById('nextBtn');                
+            
+            const isCorrect = (userChoice === isPhishingAnswer);
+
+            let score = parseInt(localStorage.getItem('fish_score') || 0);
+            let total = parseInt(localStorage.getItem('fish_total') || 0);
+            
+            if (isCorrect) {
+                score++;
+                localStorage.setItem('fish_score', score.toString());
+                resultHint.className = "alert-box success";
+                resultHint.innerHTML = "<strong>✅ 正确！</strong><br>" + analysis;
+            } else {
+                resultHint.className = "alert-box failure";
+                resultHint.innerHTML = "<strong>❌ 错误。</strong><br>" + analysis;
+            }
+            
+            total++;
+            localStorage.setItem('fish_total', total.toString());
+
+            resultHint.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function goNext() {
+            const total = parseInt(localStorage.getItem('fish_total'));
+            if (total >= 10) {
+                window.location.href = 'result.html';
+            } else {
+                window.location.href = nextPageName; // 跳转到 test3.html
+            }
+        }
+        
+        updateProgress();
+    </script>
+</body>
+</html>

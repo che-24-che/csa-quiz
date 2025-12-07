@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全意识挑战 - 第4题</title>
+    <style>
+        /* --- 统一样式，完全复制自您提供的 text1.html 模板 --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4; /* 整体背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white; /* 卡片背景 */
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        /* 进度显示样式 */
+        .progress-bar {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header {
+            color: #d9534f; /* 红色标题 */
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        /* 邮件内容样式（黄色警示）*/
+        .email-content {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #fffbe6;
+            text-align: left;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        .email-content p { margin: 10px 0; }
+        .email-content hr { border: 0; border-top: 1px solid #ddd; }
+
+        .btn-area {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            flex: 1;
+        }
+        
+        /* 钓鱼按钮（蓝色）*/
+        .btn-phishing {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-phishing:hover {
+            background-color: #0056b3;
+        }
+        
+        /* 安全按钮（灰色）*/
+        .btn-safe {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-safe:hover {
+            background-color: #545b62;
+        }
+
+        /* 汉字“下一条”按钮样式（绿色）*/
+        .btn-next {
+            background-color: #28a745;
+            color: white;
+            width: 100%;
+            margin-top: 15px;
+            display: none; /* 初始隐藏 */
+        }
+        .btn-next:hover {
+            background-color: #218838;
+        }
+        .btn:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+        }
+
+        /* 分析报告展示样式 */
+        .alert-box {
+            margin-top: 20px;
+            padding: 15px;
+            display: none;
+            border-radius: 4px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .failure {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 进度条显示为第4题 -->
+        <div id="scoreBoard" class="progress-bar">题目：4 / 10</div>
+
+        <div class="header">🛡️ 学生寝室场景</div>
+        <p>请仔细阅读场景，判断是否为钓鱼攻击：</p>
+
+        <!-- 第四题的邮件内容 -->
+        <div class="email-content">
+            <p><strong>发件人:</strong> 学生公寓 &lt;network@zju-edu.org&gt;</p>
+            <p><strong>主题:</strong> 【通知】违规电器处分</p>
+            <hr>
+            <p>同学你好：</p>
+            <p>查寝时发现你在宿舍内违规使用通电式取暖设备，现阿姨代为保管，给予警告。</p>
+            <p>如有异议，点击以下链接在两个工作日内提交申诉材料：</p>
+            <!-- 链接样式复制自 text1 模板中的 inline style -->
+            <p style="text-align: center;">
+                <span style="color: blue; text-decoration: underline; cursor: pointer;">[申诉材料提交处]</span>
+            </p>
+            <p>浙江大学学生公寓</p>
+        </div>
+
+        <div class="btn-area">
+            <button id="btnPhish" class="btn btn-phishing" onclick="makeChoice(true)">是钓鱼</button>
+            <button id="btnSafe" class="btn btn-safe" onclick="makeChoice(false)">安全</button>
+        </div>
+
+        <div id="resultHint" class="alert-box"></div>
+
+        <button id="nextBtn" class="btn btn-next" onclick="goNext()">下一条</button>
+    </div>
+
+    <script>
+        // ==========================================
+        // === 本页配置区域 (保持第4题的配置，但更新解析颜色以适应浅色主题) ===
+        const currentQNum = 4;        
+        const nextPageName = "test5.html"; // 下一题文件名
+        const isPhishingAnswer = true; // 正确答案。true:此内容是钓鱼
+        // 更改了分析文本中的颜色，使其在浅色的提示框中清晰可见
+        const analysis = "解析：发件人后缀为 <span style='font-family:monospace; color:#a04040;'>@zju-edu.org</span>，并非官方的 <span style='font-family:monospace; font-weight:bold; color:#008000;'>.edu.cn</span> 后缀，属于典型的欺骗性域名冒充。并且，在例行检查或突击检查中发现违规电器后，情节较轻，只会将其暂扣，并对学生进行批评教育";
+        // ==========================================
+
+        function updateProgress() {
+            // 使用 || 0 确保 total 始终是数字
+            const total = parseInt(localStorage.getItem('fish_total') || 0);
+            // 显示当前题号 / 总题数
+            document.getElementById('scoreBoard').innerText = `题目：${currentQNum} / 10`;
+        }
+
+        function makeChoice(userChoice) {
+            document.getElementById('btnPhish').disabled = true;
+            document.getElementById('btnSafe').disabled = true;
+            
+            const resultHint = document.getElementById('resultHint');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            const isCorrect = (userChoice === isPhishingAnswer);
+
+            let score = parseInt(localStorage.getItem('fish_score') || 0);
+            let total = parseInt(localStorage.getItem('fish_total') || 0);
+            
+            if (isCorrect) {
+                score++;
+                localStorage.setItem('fish_score', score.toString());
+                resultHint.className = "alert-box success";
+                resultHint.innerHTML = "<strong>✅ 正确！</strong><br>" + analysis;
+            } else {
+                resultHint.className = "alert-box failure";
+                resultHint.innerHTML = "<strong>❌ 错误。</strong><br>" + analysis;
+            }
+            
+            // 在这里更新 total，存储的是*已完成*的题数
+            total++;
+            localStorage.setItem('fish_total', total.toString());
+
+            // updateProgress(); // 保持与原逻辑一致，不在此处更新页面题号
+
+            resultHint.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function goNext() {
+            const total = parseInt(localStorage.getItem('fish_total') || 0); // 确保是数字
+            // 检查是否已完成所有题目
+            if (total >= 10) {
+                window.location.href = 'result.html';
+            } else {
+                // 否则跳转到下一题 (test5.html)
+                window.location.href = nextPageName;
+            }
+        }
+        
+        // 页面加载时显示进度
+        updateProgress();
+    </script>
+</body>
+</html>
